@@ -146,11 +146,11 @@ class _LoginPageState extends State<LoginPage> {
                       TextFormField(
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Email must be filled!";
+                            return "Email harus diisi!";
                           }
                           if (!RegExp('^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]')
                               .hasMatch(value)) {
-                            return 'Email Invalid';
+                            return 'Email tidak valid';
                           }
                           return null;
                         },
@@ -194,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
                         decoration: InputDecoration(
                           suffix: GestureDetector(
                             onTap: _togglePassword,
-                            child: const Text('Show',
+                            child: const Text('Lihat',
                                 style: TextStyle(
                                   color: Colors.grey,
                                   fontWeight: FontWeight.w600,

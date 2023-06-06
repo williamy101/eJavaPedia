@@ -11,9 +11,9 @@ class MainPage extends StatelessWidget {
   MainPage({Key? key}) : super(key: key);
   final cMain = Get.put(CMain());
   final List<Map> listNav = [
-    {'icon': AppAssets.iconHome, 'label': 'Home'},
-    {'icon': AppAssets.iconBookmark, 'label': 'Bookmark'},
-    {'icon': AppAssets.iconProfile, 'label': 'Profile'},
+    {'icon': AppAssets.iconHome, 'label': 'Beranda'},
+    {'icon': AppAssets.iconBookmark, 'label': 'Favorit'},
+    {'icon': AppAssets.iconProfile, 'label': 'Profil'},
   ];
 
   @override

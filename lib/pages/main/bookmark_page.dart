@@ -236,7 +236,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
                       child: Align(
                         alignment: Alignment.center,
                         child: Text(
-                          'Bookmarks',
+                          'Favorit',
                           style:
                               Theme.of(context).textTheme.headline4!.copyWith(
                                     color: Colors.black,

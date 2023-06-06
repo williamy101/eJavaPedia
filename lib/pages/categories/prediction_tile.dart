@@ -61,7 +61,7 @@ class PredictionTile extends StatelessWidget {
             color: Colors.grey,
             child: const Center(
               child: Text(
-                'No image available',
+                'Belum ada gambar',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -109,7 +109,7 @@ class PredictionTile extends StatelessWidget {
               );
             } else {
               return const Text(
-                'No ratings yet',
+                'Belum ada rating',
                 style: TextStyle(
                   color: Colors.grey,
                   fontWeight: FontWeight.w500,

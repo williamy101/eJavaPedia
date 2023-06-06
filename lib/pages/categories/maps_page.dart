@@ -211,7 +211,7 @@ class _MapsPageState extends State<MapsPage> {
                                         ),
                                       if (result.rating == null)
                                         const Text(
-                                          'No ratings yet',
+                                          'Belum ada rating',
                                           style: TextStyle(
                                             color: Colors.grey,
                                             fontWeight: FontWeight.w500,
@@ -241,7 +241,7 @@ class _MapsPageState extends State<MapsPage> {
                 ),
                 actions: [
                   TextButton(
-                    child: const Text('Bookmark'),
+                    child: const Text('Favorit'),
                     onPressed: () {
                       _addBookmark(result);
                     },
@@ -375,7 +375,7 @@ class _MapsPageState extends State<MapsPage> {
                     controller: _searchController,
                     onChanged: searchPlaces,
                     decoration: InputDecoration(
-                      hintText: 'Search places...',
+                      hintText: 'Cari tempat...',
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 16,

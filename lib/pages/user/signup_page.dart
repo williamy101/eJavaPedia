@@ -81,7 +81,7 @@ class _SignupPageState extends State<SignupPage> {
                           Align(
                             alignment: Alignment.center,
                             child: Text(
-                              'Sign Up',
+                              'Registrasi',
                               style: Theme.of(context)
                                   .textTheme
                                   .headline4!
@@ -103,7 +103,7 @@ class _SignupPageState extends State<SignupPage> {
                             fillColor: AppColors.formColor,
                             contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 16),
-                            hintText: 'Name',
+                            hintText: 'Nama',
                             hintStyle: const TextStyle(
                               fontSize: 16,
                               color: AppColors.formHint,
@@ -121,7 +121,7 @@ class _SignupPageState extends State<SignupPage> {
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Name must be filled!";
+                              return "Nama harus diisi!";
                             }
                             return null;
                           }),
@@ -138,7 +138,7 @@ class _SignupPageState extends State<SignupPage> {
                           fillColor: AppColors.formColor,
                           contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 16),
-                          hintText: 'Date of Birth',
+                          hintText: 'Tanggal lahir',
                           hintStyle: const TextStyle(
                             fontSize: 16,
                             color: AppColors.formHint,
@@ -170,7 +170,7 @@ class _SignupPageState extends State<SignupPage> {
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Date of birth field must be filled!";
+                            return "Tanggal lahir harus diisi!";
                           }
                           return null;
                         },
@@ -179,11 +179,11 @@ class _SignupPageState extends State<SignupPage> {
                       TextFormField(
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Email must be filled!";
+                            return "Email harus diisi!";
                           }
                           if (!RegExp('^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]')
                               .hasMatch(value)) {
-                            return 'Email Invalid';
+                            return 'Email tidak valid';
                           }
                           return null;
                         },
@@ -218,7 +218,7 @@ class _SignupPageState extends State<SignupPage> {
                         decoration: InputDecoration(
                           suffix: GestureDetector(
                             onTap: _togglePassword,
-                            child: const Text('Show',
+                            child: const Text('Lihat',
                                 style: TextStyle(
                                   color: Colors.grey,
                                   fontWeight: FontWeight.w600,
@@ -257,7 +257,7 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                       const SizedBox(height: 65),
                       ButtonCustom(
-                        label: 'Sign Up',
+                        label: 'Registrasi',
                         isExpand: true,
                         onTap: () {
                           if (_formkey.currentState!.validate()) {

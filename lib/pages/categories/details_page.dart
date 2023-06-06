@@ -171,7 +171,7 @@ class _DetailsPageState extends State<DetailsPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    'Overview',
+                                    'Ringkasan',
                                     style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w900,
@@ -185,7 +185,7 @@ class _DetailsPageState extends State<DetailsPage> {
                                   ),
                                   const SizedBox(height: 16),
                                   const Text(
-                                    'More Info',
+                                    'Rincian',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w900,
@@ -195,14 +195,14 @@ class _DetailsPageState extends State<DetailsPage> {
                                   const SizedBox(height: 8),
                                   Text(
                                     data['info'].isEmpty
-                                        ? 'Maaf. Bagian ini belum ada penjelasannya :('
+                                        ? 'Maaf, bagian ini belum ada penjelasannya :('
                                         : data['info'],
                                     style: const TextStyle(fontSize: 14),
                                     textAlign: TextAlign.justify,
                                   ),
                                   const SizedBox(height: 16),
                                   const Text(
-                                    'Fun Fact',
+                                    'Fakta Menarik',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w900,
@@ -212,7 +212,7 @@ class _DetailsPageState extends State<DetailsPage> {
                                   const SizedBox(height: 8),
                                   Text(
                                     data['funfact'].isEmpty
-                                        ? 'Maaf. Bagian ini belum ada penjelasannya :('
+                                        ? 'Maaf, bagian ini belum ada penjelasannya :('
                                         : data['funfact'],
                                     style: const TextStyle(fontSize: 14),
                                     textAlign: TextAlign.justify,
