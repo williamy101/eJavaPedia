@@ -167,6 +167,14 @@ class _BookmarkPageState extends State<BookmarkPage> {
   }
 
   Future<void> _showConfirmationDialog(BuildContext context) async {
+    if (bookmarkData.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("No bookmark data available"),
+        behavior: SnackBarBehavior.floating,
+      ));
+      return;
+    }
+
     await showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -188,7 +196,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
                 deleteAllBookmarks();
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text("Logout Berhasil"),
+                  content: Text("Data bookmark berhasil dihapus"),
                   behavior: SnackBarBehavior.floating,
                 ));
               },
