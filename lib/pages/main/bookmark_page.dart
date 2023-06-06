@@ -169,7 +169,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
   Future<void> _showConfirmationDialog(BuildContext context) async {
     if (bookmarkData.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("No bookmark data available"),
+        content: Text("Data bookmark kosong"),
         behavior: SnackBarBehavior.floating,
       ));
       return;
