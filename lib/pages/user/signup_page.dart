@@ -41,7 +41,7 @@ class _SignupPageState extends State<SignupPage> {
       final jsonData = jsonDecode(response.body);
       return User.toJson(jsonData);
     } else {
-      throw Exception('Failed to register');
+      throw Exception('Registrasi gagal');
     }
   }
 
@@ -246,11 +246,10 @@ class _SignupPageState extends State<SignupPage> {
                           ),
                         ),
                         validator: (value) {
-                          final RegExp regex = RegExp(
-                            r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$',
-                          );
-                          if (value == null || !regex.hasMatch(value)) {
-                            return 'Password harus berisi paling tidak 8 karakter, 1 huruf kapital, 1 huruf kecil, dan 1 karakter alfanumerik';
+                          if (value == null || value.isEmpty) {
+                            return "Password harus diisi!";
+                          } else if (value.length < 8) {
+                            return 'Password harus berisi minimum 8 karakter';
                           }
                           return null;
                         },
@@ -264,7 +263,7 @@ class _SignupPageState extends State<SignupPage> {
                             _callApi();
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(const SnackBar(
-                              content: Text("Registrasi Berhasil"),
+                              content: Text("Berhasil registrasi"),
                               behavior: SnackBarBehavior.floating,
                             ));
                             return Navigator.pushReplacementNamed(
@@ -272,7 +271,7 @@ class _SignupPageState extends State<SignupPage> {
                           } else {
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(const SnackBar(
-                              content: Text("Registrasi Gagal"),
+                              content: Text("Gagal registrasi"),
                               behavior: SnackBarBehavior.floating,
                             ));
                             return null;
@@ -286,7 +285,7 @@ class _SignupPageState extends State<SignupPage> {
                               context, AppRoute.login);
                         },
                         child: const Text(
-                          'Sudah punya akun? Log in!',
+                          'Sudah punya akun? Masuk!',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

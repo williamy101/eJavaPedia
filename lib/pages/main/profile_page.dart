@@ -57,7 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Navigator.of(context).pop();
                 Navigator.pushReplacementNamed(context, AppRoute.login);
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text("Logout Berhasil"),
+                  content: Text("Berhasil keluar"),
                   behavior: SnackBarBehavior.floating,
                 ));
               },
@@ -134,7 +134,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       const SizedBox(height: 20),
                       ButtonCustom(
-                          label: 'Logout',
+                          label: 'Keluar',
                           onTap: () {
                             _showConfirmationDialog(context);
                           }),

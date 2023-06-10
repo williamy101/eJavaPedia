@@ -59,13 +59,13 @@ class _LoginPageState extends State<LoginPage> {
       }
       Navigator.pushReplacementNamed(context, AppRoute.main);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Login Berhasil"),
+        content: Text("Berhasil masuk"),
         behavior: SnackBarBehavior.floating,
       ));
     } else if (responseData['data'] == null) {
       throw Exception('Data user tidak ditemukan');
     } else {
-      throw Exception('Error Login');
+      throw Exception('Terjadi error saat masuk');
     }
   }
 
@@ -158,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
                                 Align(
                                   alignment: Alignment.center,
                                   child: Text(
-                                    'Log In',
+                                    'Masuk',
                                     style: Theme.of(context)
                                         .textTheme
                                         .headline4!
@@ -179,7 +179,7 @@ class _LoginPageState extends State<LoginPage> {
                                 if (!RegExp(
                                         '^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]')
                                     .hasMatch(value)) {
-                                  return 'Email tidak valid';
+                                  return 'Format email tidak valid';
                                 }
                                 return null;
                               },
@@ -210,11 +210,10 @@ class _LoginPageState extends State<LoginPage> {
                             const SizedBox(height: 15),
                             TextFormField(
                               validator: (value) {
-                                final RegExp regex = RegExp(
-                                  r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$',
-                                );
-                                if (value == null || !regex.hasMatch(value)) {
-                                  return 'Password harus berisi paling tidak 8 karakter, 1 huruf kapital, 1 huruf kecil, dan 1 karakter alfanumerik';
+                                if (value == null || value.isEmpty) {
+                                  return "Password harus diisi!";
+                                } else if (value.length < 8) {
+                                  return 'Password harus berisi minimum 8 karakter';
                                 }
                                 return null;
                               },
@@ -255,7 +254,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             const SizedBox(height: 200),
                             ButtonCustom(
-                              label: 'Log In',
+                              label: 'Masuk',
                               isExpand: true,
                               onTap: () async {
                                 if (_formkey.currentState!.validate()) {
@@ -265,14 +264,14 @@ class _LoginPageState extends State<LoginPage> {
                                         context, AppRoute.main);
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(const SnackBar(
-                                      content: Text("Login Berhasil"),
+                                      content: Text("Berhasil masuk"),
                                       behavior: SnackBarBehavior.floating,
                                     ));
                                   } catch (e) {
                                     print('Login Error: $e');
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text("Login Gagal"),
+                                        content: Text("Gagal masuk"),
                                         behavior: SnackBarBehavior.floating,
                                       ),
                                     );
@@ -295,7 +294,7 @@ class _LoginPageState extends State<LoginPage> {
                                     context, AppRoute.signup);
                               },
                               child: const Text(
-                                'Belum punya akun? Sign Up!',
+                                'Belum punya akun? Registrasi!',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
