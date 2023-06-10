@@ -26,6 +26,10 @@ class _MapsPageState extends State<MapsPage> {
     apiKey: 'AIzaSyD9c4q9V2BvqbvfgR9z6mbulvvfwWxoVeM',
   );
 
+  List<Map<String, dynamic>> updatedBookmarkData = [];
+
+  List<Map<String, dynamic>> existingBookmarks = [];
+
   void _addBookmark(PlaceDetails result) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? accountId = prefs.getString('accountId');
@@ -45,6 +49,24 @@ class _MapsPageState extends State<MapsPage> {
     List<Map<String, dynamic>> existingBookmarks =
         jsonDecode(prefs.getString('bookmarkData') ?? '[]')
             .cast<Map<String, dynamic>>();
+
+    bool isDuplicate = existingBookmarks.any((bookmark) =>
+        bookmark['nama'] == result.name &&
+        bookmark['latitude'] ==
+            double.parse(result.geometry!.location.lat.toString()) &&
+        bookmark['longitude'] ==
+            double.parse(result.geometry!.location.lng.toString()));
+
+    if (isDuplicate) {
+      print('Bookmark already exists');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Tempat ini sudah masuk favorit"),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
 
     existingBookmarks.add(bookmark);
 
@@ -72,10 +94,15 @@ class _MapsPageState extends State<MapsPage> {
       print(responseBody);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Berhasil terbookmark"),
+          content: Text("Berhasil masuk favorit"),
           behavior: SnackBarBehavior.floating,
         ),
       );
+
+      // Update the local bookmark data list
+      setState(() {
+        updatedBookmarkData = existingBookmarks;
+      });
     } else {
       print('Gagal menambahkan bookmark');
     }
@@ -145,6 +172,16 @@ class _MapsPageState extends State<MapsPage> {
           showDialog(
             context: context,
             builder: (BuildContext context) {
+              bool isBookmarked = false;
+              if (existingBookmarks.any((bookmark) =>
+                  bookmark['nama'] == result.name &&
+                  bookmark['latitude'] ==
+                      double.parse(result.geometry!.location.lat.toString()) &&
+                  bookmark['longitude'] ==
+                      double.parse(result.geometry!.location.lng.toString()))) {
+                isBookmarked = true;
+              }
+
               return AlertDialog(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
@@ -240,12 +277,14 @@ class _MapsPageState extends State<MapsPage> {
                   ),
                 ),
                 actions: [
-                  TextButton(
-                    child: const Text('Favorit'),
-                    onPressed: () {
-                      _addBookmark(result);
-                    },
-                  ),
+                  if (!isBookmarked)
+                    TextButton(
+                      child: const Text('Favorit'),
+                      onPressed: () {
+                        _addBookmark(result);
+                        Navigator.of(context).pop();
+                      },
+                    ),
                   TextButton(
                     child: const Text('OK'),
                     onPressed: () {
@@ -318,7 +357,7 @@ class _MapsPageState extends State<MapsPage> {
             builder: (BuildContext context) {
               return GestureDetector(
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.pop(context, updatedBookmarkData);
                 },
                 child: const Padding(
                   padding: EdgeInsets.only(

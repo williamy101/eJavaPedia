@@ -40,5 +40,9 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyD9c4q9V2BvqbvfgR9z6mbulvvfwWxoVeM" />
 
+        <meta-data
+        android:name="io.flutter.embedded_fonts"
+        android:resource="@array/fonts" />
+
     </application>
 </manifest>

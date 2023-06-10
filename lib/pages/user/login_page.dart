@@ -1,7 +1,7 @@
 import 'dart:convert';
-
 import 'package:ejavapedia/configs/app_colors.dart';
 import 'package:ejavapedia/configs/app_route.dart';
+import 'package:ejavapedia/pages/main/main_page.dart';
 import 'package:ejavapedia/widgets/button_custom.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -72,6 +72,16 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> storeToken(String token, String accountId) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
+
+    final tokenParts = token.split('.');
+    if (tokenParts.length == 3) {
+      final timer = int.tryParse(tokenParts[2]);
+      if (timer != null) {
+        final currentTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+        final expirationTime = currentTime + timer;
+        await prefs.setInt('tokenExpiration', expirationTime);
+      }
+    }
     await prefs.setString('accountId', accountId);
     print('Store successful!!!!!');
   }
@@ -89,206 +99,227 @@ class _LoginPageState extends State<LoginPage> {
     print('Bookmark Storing Successful');
   }
 
-  Future<String?> getToken(String token) async {
+  Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    final token = prefs.getString('token');
+    final expirationTime = prefs.getInt('tokenExpiration');
+    if (token != null && expirationTime != null) {
+      final currentTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      if (currentTime < expirationTime) {
+        return token;
+      }
+    }
+    return null;
   }
 
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(builder: ((context, constraints) {
-          return SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: constraints.maxHeight,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formkey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Stack(
-                        children: [
-                          InkWell(
-                              onTap: () {
-                                Navigator.pushNamed(context, AppRoute.intro);
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                child: Icon(
-                                  Icons.close_rounded,
-                                  size: 25,
-                                  color: Colors.grey,
-                                ),
-                              )),
-                          Align(
-                            alignment: Alignment.center,
-                            child: Text(
-                              'Log In',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headline4!
-                                  .copyWith(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w900,
+    return FutureBuilder<String?>(
+      future: getToken(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasData && snapshot.data != null) {
+          return MainPage();
+        } else {
+          return Scaffold(
+            body: SafeArea(
+              child: LayoutBuilder(builder: ((context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Form(
+                        key: _formkey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Stack(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.pushNamed(
+                                        context, AppRoute.intro);
+                                  },
+                                  child: const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Icon(
+                                      Icons.close_rounded,
+                                      size: 25,
+                                      color: Colors.grey,
+                                    ),
                                   ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 30),
-                      TextFormField(
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Email harus diisi!";
-                          }
-                          if (!RegExp('^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]')
-                              .hasMatch(value)) {
-                            return 'Email tidak valid';
-                          }
-                          return null;
-                        },
-                        controller: controllerEmail,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          filled: true,
-                          fillColor: AppColors.formColor,
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 16),
-                          hintText: 'Email',
-                          hintStyle: const TextStyle(
-                            fontSize: 16,
-                            color: AppColors.formHint,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide:
-                                const BorderSide(color: AppColors.secondary),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide:
-                                const BorderSide(color: AppColors.formBorder),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      TextFormField(
-                        validator: (value) {
-                          final RegExp regex = RegExp(
-                            r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$',
-                          );
-                          if (value == null || !regex.hasMatch(value)) {
-                            return 'Password harus berisi paling tidak 8 karakter, 1 huruf kapital, 1 huruf kecil, dan 1 karakter alfanumerik';
-                          }
-                          return null;
-                        },
-                        controller: controllerPassword,
-                        obscureText: hidePassword,
-                        decoration: InputDecoration(
-                          suffix: GestureDetector(
-                            onTap: _togglePassword,
-                            child: const Text('Lihat',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.w600,
-                                )),
-                          ),
-                          isDense: true,
-                          filled: true,
-                          fillColor: AppColors.formColor,
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 16),
-                          hintText: 'Password',
-                          hintStyle: const TextStyle(
-                            fontSize: 16,
-                            color: AppColors.formHint,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide:
-                                const BorderSide(color: AppColors.secondary),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide:
-                                const BorderSide(color: AppColors.formBorder),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 200),
-                      ButtonCustom(
-                        label: 'Log In',
-                        isExpand: true,
-                        onTap: () async {
-                          if (_formkey.currentState!.validate()) {
-                            try {
-                              await _callLoginApi();
-                              Navigator.pushReplacementNamed(
-                                  context, AppRoute.main);
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(const SnackBar(
-                                content: Text("Login Berhasil"),
-                                behavior: SnackBarBehavior.floating,
-                              ));
-                            } catch (e) {
-                              print('Login Error: $e');
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Login Gagal"),
-                                  behavior: SnackBarBehavior.floating,
                                 ),
-                              );
-                            }
-                          } else {
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(const SnackBar(
-                              content:
-                                  Text("Pastikan Format Login Sudah Tepat"),
-                              behavior: SnackBarBehavior.floating,
-                            ));
-                            return null;
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 15),
-                      InkWell(
-                        onTap: () {
-                          Navigator.pushReplacementNamed(
-                              context, AppRoute.signup);
-                        },
-                        child: const Text(
-                          'Belum punya akun? Sign Up!',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.signInTextButton,
-                          ),
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'Log In',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline4!
+                                        .copyWith(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w900,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 30),
+                            TextFormField(
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Email harus diisi!";
+                                }
+                                if (!RegExp(
+                                        '^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]')
+                                    .hasMatch(value)) {
+                                  return 'Email tidak valid';
+                                }
+                                return null;
+                              },
+                              controller: controllerEmail,
+                              decoration: InputDecoration(
+                                isDense: true,
+                                filled: true,
+                                fillColor: AppColors.formColor,
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 16),
+                                hintText: 'Email',
+                                hintStyle: const TextStyle(
+                                  fontSize: 16,
+                                  color: AppColors.formHint,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                      color: AppColors.secondary),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                      color: AppColors.formBorder),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              validator: (value) {
+                                final RegExp regex = RegExp(
+                                  r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$',
+                                );
+                                if (value == null || !regex.hasMatch(value)) {
+                                  return 'Password harus berisi paling tidak 8 karakter, 1 huruf kapital, 1 huruf kecil, dan 1 karakter alfanumerik';
+                                }
+                                return null;
+                              },
+                              controller: controllerPassword,
+                              obscureText: hidePassword,
+                              decoration: InputDecoration(
+                                suffix: GestureDetector(
+                                  onTap: _togglePassword,
+                                  child: const Text(
+                                    'Lihat',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                isDense: true,
+                                filled: true,
+                                fillColor: AppColors.formColor,
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 16),
+                                hintText: 'Password',
+                                hintStyle: const TextStyle(
+                                  fontSize: 16,
+                                  color: AppColors.formHint,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                      color: AppColors.secondary),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                      color: AppColors.formBorder),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 200),
+                            ButtonCustom(
+                              label: 'Log In',
+                              isExpand: true,
+                              onTap: () async {
+                                if (_formkey.currentState!.validate()) {
+                                  try {
+                                    await _callLoginApi();
+                                    Navigator.pushReplacementNamed(
+                                        context, AppRoute.main);
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(const SnackBar(
+                                      content: Text("Login Berhasil"),
+                                      behavior: SnackBarBehavior.floating,
+                                    ));
+                                  } catch (e) {
+                                    print('Login Error: $e');
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("Login Gagal"),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(const SnackBar(
+                                    content: Text(
+                                        "Pastikan Format Login Sudah Tepat"),
+                                    behavior: SnackBarBehavior.floating,
+                                  ));
+                                  return null;
+                                }
+                              },
+                            ),
+                            const SizedBox(height: 15),
+                            InkWell(
+                              onTap: () {
+                                Navigator.pushReplacementNamed(
+                                    context, AppRoute.signup);
+                              },
+                              child: const Text(
+                                'Belum punya akun? Sign Up!',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.signInTextButton,
+                                ),
+                              ),
+                            )
+                          ],
                         ),
-                      )
-                    ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              })),
             ),
           );
-        })),
-      ),
+        }
+      },
     );
   }
 
   void _togglePassword() {
-    if (hidePassword == true) {
-      hidePassword = false;
-    } else {
-      hidePassword = true;
-    }
-    setState(() {});
+    setState(() {
+      hidePassword = !hidePassword;
+    });
   }
 }

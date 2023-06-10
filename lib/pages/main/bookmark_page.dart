@@ -16,6 +16,7 @@ class BookmarkPage extends StatefulWidget {
 class _BookmarkPageState extends State<BookmarkPage> {
   List<Map<String, dynamic>> bookmarkData = [];
   String selectedFilter = '';
+  late List<Map<String, dynamic>> updatedBookmarkData;
 
   Future<void> getBookmarkData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -169,7 +170,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
   Future<void> _showConfirmationDialog(BuildContext context) async {
     if (bookmarkData.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Data bookmark kosong"),
+        content: Text("Data favorit kosong"),
         behavior: SnackBarBehavior.floating,
       ));
       return;
@@ -181,8 +182,8 @@ class _BookmarkPageState extends State<BookmarkPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Konfirmasi'),
-          content:
-              const Text('Apakah Anda yakin ingin menghapus semua bookmark?'),
+          content: const Text(
+              'Apakah Anda yakin ingin menghapus semua data favorit?'),
           actions: <Widget>[
             TextButton(
               child: const Text('Tidak'),
@@ -196,7 +197,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
                 deleteAllBookmarks();
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text("Data bookmark berhasil dihapus"),
+                  content: Text("Data favorit berhasil dihapus"),
                   behavior: SnackBarBehavior.floating,
                 ));
               },
@@ -271,153 +272,171 @@ class _BookmarkPageState extends State<BookmarkPage> {
               ),
               const SizedBox(height: 24),
               Expanded(
-                child: ListView.builder(
-                  itemCount: bookmarkData.length,
-                  itemBuilder: (context, index) {
-                    final data = bookmarkData[index];
-                    final imageUrl =
-                        '${data['pic']}&key=AIzaSyD9c4q9V2BvqbvfgR9z6mbulvvfwWxoVeM';
-
-                    if (selectedFilter.isNotEmpty &&
-                        data['kategori'] != selectedFilter) {
-                      return Container();
-                    }
-
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Dismissible(
-                        key: UniqueKey(),
-                        background: Container(
-                          color: Colors.red,
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 16.0),
-                          child: const Icon(
-                            Icons.delete,
-                            color: Colors.white,
-                          ),
+                child: bookmarkData.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'Belum ada yang anda masukkan favorit',
+                          style: TextStyle(fontSize: 18),
                         ),
-                        direction: DismissDirection.endToStart,
-                        confirmDismiss: (direction) async {
-                          return await showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Text("Konfirmasi"),
-                                content: const Text(
-                                    "Apakah Anda yakin ingin menghapus item ini?"),
-                                actions: [
-                                  TextButton(
-                                    child: const Text("Tidak"),
-                                    onPressed: () {
-                                      Navigator.of(context).pop(false);
-                                    },
-                                  ),
-                                  TextButton(
-                                    child: const Text("Ya"),
-                                    onPressed: () {
-                                      Navigator.of(context).pop(true);
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        onDismissed: (direction) {
-                          if (direction == DismissDirection.endToStart) {
-                            deleteBookmark(index);
+                      )
+                    : ListView.builder(
+                        itemCount: bookmarkData.length,
+                        itemBuilder: (context, index) {
+                          final data = bookmarkData[index];
+                          final imageUrl =
+                              '${data['pic']}&key=AIzaSyD9c4q9V2BvqbvfgR9z6mbulvvfwWxoVeM';
+
+                          if (selectedFilter.isNotEmpty &&
+                              data['kategori'] != selectedFilter) {
+                            return Container();
                           }
-                        },
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => MapsPage(
-                                  nama: data['nama'],
-                                  type: data['kategori'],
-                                  latitude: data['latitude'],
-                                  longitude: data['longitude'],
+
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Dismissible(
+                              key: UniqueKey(),
+                              background: Container(
+                                color: Colors.red,
+                                alignment: Alignment.centerRight,
+                                padding: const EdgeInsets.only(right: 16.0),
+                                child: const Icon(
+                                  Icons.delete,
+                                  color: Colors.white,
                                 ),
                               ),
-                            );
-                          },
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(15),
-                                    child: SizedBox(
-                                      width: 100,
-                                      height: 120,
-                                      child: Image.network(
-                                        imageUrl,
-                                        fit: BoxFit.cover,
+                              direction: DismissDirection.endToStart,
+                              confirmDismiss: (direction) async {
+                                return await showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text("Konfirmasi"),
+                                      content: const Text(
+                                          "Apakah Anda yakin ingin menghapus item ini?"),
+                                      actions: [
+                                        TextButton(
+                                          child: const Text("Tidak"),
+                                          onPressed: () {
+                                            Navigator.of(context).pop(false);
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: const Text("Ya"),
+                                          onPressed: () {
+                                            Navigator.of(context).pop(true);
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              onDismissed: (direction) {
+                                if (direction == DismissDirection.endToStart) {
+                                  deleteBookmark(index);
+                                }
+                              },
+                              child: GestureDetector(
+                                onTap: () async {
+                                  updatedBookmarkData = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MapsPage(
+                                        nama: data['nama'],
+                                        type: data['kategori'],
+                                        latitude: data['latitude'],
+                                        longitude: data['longitude'],
                                       ),
                                     ),
+                                  );
+
+                                  if (updatedBookmarkData != null) {
+                                    setState(() {
+                                      bookmarkData = updatedBookmarkData;
+                                    });
+                                    updateBookmarkData();
+                                  }
+                                },
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
                                   ),
-                                  Expanded(
-                                    child: Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 16.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            data['nama'],
-                                            style:
-                                                const TextStyle(fontSize: 20),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          child: SizedBox(
+                                            width: 100,
+                                            height: 120,
+                                            child: Image.network(
+                                              imageUrl,
+                                              fit: BoxFit.cover,
+                                            ),
                                           ),
-                                          Text(
-                                            data['kategori'],
-                                            style: const TextStyle(
-                                                fontSize: 16,
-                                                fontStyle: FontStyle.italic,
-                                                color: Colors.grey),
+                                        ),
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 16.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  data['nama'],
+                                                  style: const TextStyle(
+                                                      fontSize: 20),
+                                                ),
+                                                Text(
+                                                  data['kategori'],
+                                                  style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontStyle:
+                                                          FontStyle.italic,
+                                                      color: Colors.grey),
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      data['rating'],
+                                                      style: const TextStyle(
+                                                        fontSize: 17,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 35,
+                                                      child: Image.asset(
+                                                        AppAssets.iconStar,
+                                                        color: Colors.yellow,
+                                                        height: 20,
+                                                        width: 20,
+                                                      ),
+                                                    )
+                                                  ],
+                                                )
+                                              ],
+                                            ),
                                           ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                data['rating'],
-                                                style: const TextStyle(
-                                                  fontSize: 17,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                width: 35,
-                                                child: Image.asset(
-                                                  AppAssets.iconStar,
-                                                  color: Colors.yellow,
-                                                  height: 20,
-                                                  width: 20,
-                                                ),
-                                              )
-                                            ],
-                                          )
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
             ],
           ),

@@ -1,0 +1,5 @@
+<resources>
+    <array name="fonts">
+        <item>assets/fonts/DMSans-Bold.ttf</item>
+    </array>
+</resources>

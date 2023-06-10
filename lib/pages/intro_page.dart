@@ -2,9 +2,28 @@ import 'package:ejavapedia/configs/app_assets.dart';
 import 'package:ejavapedia/configs/app_route.dart';
 import 'package:ejavapedia/widgets/button_custom.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class IntroPage extends StatelessWidget {
+class IntroPage extends StatefulWidget {
   const IntroPage({Key? key}) : super(key: key);
+
+  @override
+  State<IntroPage> createState() => _IntroPageState();
+}
+
+class _IntroPageState extends State<IntroPage> {
+  void initState() {
+    super.initState();
+    checkToken();
+  }
+
+  Future<void> checkToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token != null) {
+      Navigator.pushReplacementNamed(context, AppRoute.main);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

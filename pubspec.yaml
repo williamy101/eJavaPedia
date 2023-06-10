@@ -99,6 +99,12 @@ flutter:
   - assets/icon_food.png
   - assets/icon_travel.png
   - assets/icon_star.png
+  - assets/fonts/DMSans-Bold.ttf
+  - assets/fonts/DMSans-BoldItalic.ttf
+  - assets/fonts/DMSans-Italic.ttf
+  - assets/fonts/DMSans-MediumItalic.ttf
+  - assets/fonts/DMSans-Medium.ttf
+  - assets/fonts/DMSans-Regular.ttf
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

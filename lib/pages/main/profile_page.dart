@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:ejavapedia/auth_service.dart';
 import 'package:ejavapedia/configs/app_assets.dart';
 import 'package:ejavapedia/configs/app_route.dart';
 import 'package:ejavapedia/widgets/button_custom.dart';
@@ -15,12 +16,6 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   List<Map<String, dynamic>> dataList = [];
-
-  Future<void> performLogout(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
-    Navigator.pushReplacementNamed(context, AppRoute.login);
-  }
 
   Future<void> getUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -57,9 +52,10 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             TextButton(
               child: const Text('Ya'),
-              onPressed: () {
-                performLogout(context);
+              onPressed: () async {
+                await AuthService.performLogout();
                 Navigator.of(context).pop();
+                Navigator.pushReplacementNamed(context, AppRoute.login);
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                   content: Text("Logout Berhasil"),
                   behavior: SnackBarBehavior.floating,
