@@ -54,6 +54,7 @@ class _DancePageState extends State<DancePage> {
         _searchResults = results;
       });
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching search results: $e');
     }
   }

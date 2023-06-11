@@ -12,6 +12,7 @@ class IntroPage extends StatefulWidget {
 }
 
 class _IntroPageState extends State<IntroPage> {
+  @override
   void initState() {
     super.initState();
     checkToken();
@@ -21,6 +22,7 @@ class _IntroPageState extends State<IntroPage> {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token != null) {
+      // ignore: use_build_context_synchronously
       Navigator.pushReplacementNamed(context, AppRoute.main);
     }
   }

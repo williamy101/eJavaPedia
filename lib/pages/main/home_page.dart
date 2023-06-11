@@ -255,29 +255,28 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        if (searchResults != null)
-          Positioned(
-            top: 45,
-            left: 0,
-            right: 0,
-            child: Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: searchResults.length,
-                itemBuilder: (context, index) {
-                  final result = searchResults[index];
-                  return ListTile(
-                    title: Text(result['title']),
-                    // Display other relevant data from the result
-                    onTap: () {
-                      // Handle tile tap event here, e.g., navigate to details page
-                    },
-                  );
-                },
-              ),
+        Positioned(
+          top: 45,
+          left: 0,
+          right: 0,
+          child: Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: searchResults.length,
+              itemBuilder: (context, index) {
+                final result = searchResults[index];
+                return ListTile(
+                  title: Text(result['title']),
+                  // Display other relevant data from the result
+                  onTap: () {
+                    // Handle tile tap event here, e.g., navigate to details page
+                  },
+                );
+              },
             ),
           ),
+        ),
       ],
     );
   }

@@ -1,10 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:ejavapedia/pages/categories/prediction_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,10 +12,12 @@ class MapsPage extends StatefulWidget {
   final double? latitude;
   final double? longitude;
 
-  MapsPage(
+  // ignore: use_key_in_widget_constructors
+  const MapsPage(
       {required this.nama, required this.type, this.latitude, this.longitude});
 
   @override
+  // ignore: library_private_types_in_public_api
   _MapsPageState createState() => _MapsPageState();
 }
 
@@ -58,7 +58,9 @@ class _MapsPageState extends State<MapsPage> {
             double.parse(result.geometry!.location.lng.toString()));
 
     if (isDuplicate) {
+      // ignore: avoid_print
       print('Bookmark already exists');
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Tempat ini sudah masuk favorit"),
@@ -90,8 +92,11 @@ class _MapsPageState extends State<MapsPage> {
     var responseBody = jsonDecode(response.body);
 
     if (responseBody['error']['status'] == false) {
+      // ignore: avoid_print
       print('Bookmark berhasil ditambahkan');
+      // ignore: avoid_print
       print(responseBody);
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Berhasil masuk favorit"),
@@ -104,6 +109,7 @@ class _MapsPageState extends State<MapsPage> {
         updatedBookmarkData = existingBookmarks;
       });
     } else {
+      // ignore: avoid_print
       print('Gagal menambahkan bookmark');
     }
   }
@@ -297,6 +303,7 @@ class _MapsPageState extends State<MapsPage> {
           );
         });
       } else {
+        // ignore: avoid_print
         print('Error fetching place details: ${response.errorMessage}');
       }
     }

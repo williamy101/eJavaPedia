@@ -38,7 +38,9 @@ class _LoginPageState extends State<LoginPage> {
         'account_password': controllerPassword.text,
       }),
     );
+    // ignore: avoid_print
     print('Response status: ${response.statusCode}');
+    // ignore: avoid_print
     print('Response body: ${response.body}');
 
     final responseData = jsonDecode(response.body);
@@ -50,6 +52,7 @@ class _LoginPageState extends State<LoginPage> {
         token != null &&
         accountId != null &&
         responseData['metadata'] != null) {
+      // ignore: avoid_print
       print("Login Successful");
       await storeToken(token, accountId);
       await storeUserData(responseData['data']);
@@ -57,7 +60,9 @@ class _LoginPageState extends State<LoginPage> {
         final bookmarkDataString = jsonEncode(bookmarkData);
         await storeBookmarkData(bookmarkDataString);
       }
+      // ignore: use_build_context_synchronously
       Navigator.pushReplacementNamed(context, AppRoute.main);
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("Berhasil masuk"),
         behavior: SnackBarBehavior.floating,
@@ -83,6 +88,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
     await prefs.setString('accountId', accountId);
+    // ignore: avoid_print
     print('Store successful!!!!!');
   }
 
@@ -90,12 +96,14 @@ class _LoginPageState extends State<LoginPage> {
     final prefs = await SharedPreferences.getInstance();
     final dataListString = jsonEncode(data);
     await prefs.setString('dataList', dataListString);
+    // ignore: avoid_print
     print('Store data successful!!');
   }
 
   Future<void> storeBookmarkData(String bookmarkData) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('bookmarkData', bookmarkData);
+    // ignore: avoid_print
     print('Bookmark Storing Successful');
   }
 
@@ -120,6 +128,7 @@ class _LoginPageState extends State<LoginPage> {
       future: getToken(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
+          // ignore: prefer_const_constructors
           return CircularProgressIndicator();
         } else if (snapshot.hasData && snapshot.data != null) {
           return MainPage();
@@ -260,14 +269,17 @@ class _LoginPageState extends State<LoginPage> {
                                 if (_formkey.currentState!.validate()) {
                                   try {
                                     await _callLoginApi();
+                                    // ignore: use_build_context_synchronously
                                     Navigator.pushReplacementNamed(
                                         context, AppRoute.main);
+                                    // ignore: use_build_context_synchronously
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(const SnackBar(
                                       content: Text("Berhasil masuk"),
                                       behavior: SnackBarBehavior.floating,
                                     ));
                                   } catch (e) {
+                                    // ignore: avoid_print
                                     print('Login Error: $e');
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(

@@ -6,15 +6,12 @@ class PredictionTile extends StatelessWidget {
   final Prediction prediction;
   final Function(String?) onTap;
 
-  PredictionTile({
+  // ignore: use_key_in_widget_constructors
+  const PredictionTile({
     required this.places,
     required this.prediction,
     required this.onTap,
   });
-
-  void _handleTap() async {
-    await onTap(prediction.placeId);
-  }
 
   Future<void> getPlaceDetails(String placeId) async {
     PlacesDetailsResponse response = await places.getDetailsByPlaceId(placeId);
@@ -22,6 +19,7 @@ class PredictionTile extends StatelessWidget {
       final result = response.result;
       onTap(result.placeId);
     } else {
+      // ignore: avoid_print
       print('Error fetching place details: ${response.errorMessage}');
     }
   }

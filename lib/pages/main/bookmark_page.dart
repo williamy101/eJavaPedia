@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:ejavapedia/configs/app_assets.dart';
 import 'package:ejavapedia/pages/categories/maps_page.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,7 +37,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
   void showFilterPopupMenu(BuildContext context) async {
     final selectedValue = await showMenu(
       context: context,
-      position: RelativeRect.fromLTRB(0, 30, 0, 0),
+      position: const RelativeRect.fromLTRB(0, 30, 0, 0),
       items: <PopupMenuEntry<String>>[
         const PopupMenuItem<String>(
           value: '',
@@ -104,6 +103,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
             'Delete failed with status code: ${response.statusCode}');
       }
     } catch (error) {
+      // ignore: avoid_print
       print('Error calling API: $error');
       throw Exception('Error calling API');
     }
@@ -152,6 +152,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
             'Delete failed with status code: ${response.statusCode}');
       }
     } catch (error) {
+      // ignore: avoid_print
       print('Error calling API: $error');
       throw Exception('Error calling API');
     }
@@ -216,7 +217,6 @@ class _BookmarkPageState extends State<BookmarkPage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -350,12 +350,10 @@ class _BookmarkPageState extends State<BookmarkPage> {
                                     ),
                                   );
 
-                                  if (updatedBookmarkData != null) {
-                                    setState(() {
-                                      bookmarkData = updatedBookmarkData;
-                                    });
-                                    updateBookmarkData();
-                                  }
+                                  setState(() {
+                                    bookmarkData = updatedBookmarkData;
+                                  });
+                                  updateBookmarkData();
                                 },
                                 child: Card(
                                   shape: RoundedRectangleBorder(

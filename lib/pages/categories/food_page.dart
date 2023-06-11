@@ -54,6 +54,7 @@ class _FoodPageState extends State<FoodPage> {
         _searchResults = results;
       });
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching search results: $e');
     }
   }
@@ -62,7 +63,7 @@ class _FoodPageState extends State<FoodPage> {
     _fetchSearchResults(query);
   }
 
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {

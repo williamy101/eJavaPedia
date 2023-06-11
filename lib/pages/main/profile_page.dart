@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:ejavapedia/auth_service.dart';
-import 'package:ejavapedia/configs/app_assets.dart';
 import 'package:ejavapedia/configs/app_route.dart';
 import 'package:ejavapedia/widgets/button_custom.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +19,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> getUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? jsonData = prefs.getString('dataList');
+    // ignore: avoid_print
     print('jsonData: $jsonData');
     if (jsonData != null) {
       try {
@@ -28,8 +28,10 @@ class _ProfilePageState extends State<ProfilePage> {
         setState(() {
           dataList = [dataMap];
         });
+        // ignore: avoid_print
         print('Decoded dataList: $dataList');
       } catch (e) {
+        // ignore: avoid_print
         print('Error decoding dataList: $e');
       }
     }
@@ -54,8 +56,11 @@ class _ProfilePageState extends State<ProfilePage> {
               child: const Text('Ya'),
               onPressed: () async {
                 await AuthService.performLogout();
+                // ignore: use_build_context_synchronously
                 Navigator.of(context).pop();
+                // ignore: use_build_context_synchronously
                 Navigator.pushReplacementNamed(context, AppRoute.login);
+                // ignore: use_build_context_synchronously
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                   content: Text("Berhasil keluar"),
                   behavior: SnackBarBehavior.floating,

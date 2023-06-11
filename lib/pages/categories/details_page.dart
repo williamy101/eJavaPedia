@@ -10,9 +10,11 @@ class DetailsPage extends StatefulWidget {
   final String type;
   final int id;
 
-  DetailsPage({required this.type, required this.id});
+  // ignore: use_key_in_widget_constructors
+  const DetailsPage({required this.type, required this.id});
 
   @override
+  // ignore: library_private_types_in_public_api
   _DetailsPageState createState() => _DetailsPageState();
 }
 
@@ -67,7 +69,7 @@ class _DetailsPageState extends State<DetailsPage> {
                   ),
                   const SizedBox(width: 16),
                   Text(
-                    '${widget.type}',
+                    widget.type,
                     style: Theme.of(context).textTheme.headline4!.copyWith(
                           color: AppColors.secondary,
                           fontWeight: FontWeight.w900,
