@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:ejavapedia/models/model_user.dart';
 import 'package:http/http.dart' as http;
 import 'package:ejavapedia/configs/app_colors.dart';
 import 'package:ejavapedia/configs/app_route.dart';
@@ -7,14 +6,14 @@ import 'package:ejavapedia/widgets/button_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class SignupPage extends StatefulWidget {
-  const SignupPage({Key? key}) : super(key: key);
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({Key? key}) : super(key: key);
 
   @override
-  State<SignupPage> createState() => _SignupPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final controllerName = TextEditingController();
   final controllerDoB = TextEditingController();
   final controllerEmail = TextEditingController();
@@ -22,9 +21,10 @@ class _SignupPageState extends State<SignupPage> {
 
   bool hidePassword = true;
   bool isLoading = false;
+  bool _isFormValid = false;
 
-  Future<User> _callApi() async {
-    final url = Uri.parse('http://192.168.100.8:8888/eJavaPedia/register');
+  Future<void> registerUser() async {
+    final url = Uri.parse('http://192.168.100.203:8888/eJavaPedia/register');
     final response = await http.post(
       url,
       headers: <String, String>{
@@ -39,13 +39,18 @@ class _SignupPageState extends State<SignupPage> {
     );
     if (response.body.contains('data')) {
       final jsonData = jsonDecode(response.body);
-      return User.toJson(jsonData);
+      return;
     } else {
       throw Exception('Registrasi gagal');
     }
   }
 
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+  void _validateForm() {
+    setState(() {
+      _isFormValid = _formkey.currentState?.validate() ?? false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -258,15 +263,16 @@ class _SignupPageState extends State<SignupPage> {
                       ButtonCustom(
                         label: 'Registrasi',
                         isExpand: true,
-                        onTap: () {
-                          if (_formkey.currentState!.validate()) {
-                            _callApi();
+                        onTap: () async {
+                          _validateForm();
+                          if (_isFormValid) {
+                            await registerUser();
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(const SnackBar(
                               content: Text("Berhasil registrasi"),
                               behavior: SnackBarBehavior.floating,
                             ));
-                            return Navigator.pushReplacementNamed(
+                            Navigator.pushReplacementNamed(
                                 context, AppRoute.login);
                           } else {
                             ScaffoldMessenger.of(context)
@@ -274,7 +280,6 @@ class _SignupPageState extends State<SignupPage> {
                               content: Text("Gagal registrasi"),
                               behavior: SnackBarBehavior.floating,
                             ));
-                            return null;
                           }
                         },
                       ),

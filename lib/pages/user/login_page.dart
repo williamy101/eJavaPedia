@@ -14,20 +14,14 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class ApiError {
-  final int statusCode;
-  final String message;
-
-  ApiError(this.statusCode, this.message);
-}
-
 class _LoginPageState extends State<LoginPage> {
   final controllerEmail = TextEditingController();
   final controllerPassword = TextEditingController();
   bool hidePassword = true;
+  bool _isFormValid = false;
 
-  Future<void> _callLoginApi() async {
-    final url = Uri.parse('http://192.168.100.8:8888/eJavaPedia/login');
+  Future<void> callLogin() async {
+    final url = Uri.parse('http://192.168.100.203:8888/eJavaPedia/login');
     final response = await http.post(
       url,
       headers: <String, String>{
@@ -60,17 +54,14 @@ class _LoginPageState extends State<LoginPage> {
         final bookmarkDataString = jsonEncode(bookmarkData);
         await storeBookmarkData(bookmarkDataString);
       }
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacementNamed(context, AppRoute.main);
-      // ignore: use_build_context_synchronously
+    } else if (responseData['data'] == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Berhasil masuk"),
+        content: Text('Email atau password salah'),
         behavior: SnackBarBehavior.floating,
       ));
-    } else if (responseData['data'] == null) {
-      throw Exception('Data user tidak ditemukan');
     } else {
-      throw Exception('Terjadi error saat masuk');
+      throw Exception(
+          'Terjadi error saat masuk. Status code: ${response.statusCode}');
     }
   }
 
@@ -122,15 +113,18 @@ class _LoginPageState extends State<LoginPage> {
 
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
 
+  void _validateForm() {
+    setState(() {
+      _isFormValid = _formkey.currentState?.validate() ?? false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<String?>(
       future: getToken(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          // ignore: prefer_const_constructors
-          return CircularProgressIndicator();
-        } else if (snapshot.hasData && snapshot.data != null) {
+        if (snapshot.hasData && snapshot.data != null) {
           return MainPage();
         } else {
           return Scaffold(
@@ -266,35 +260,17 @@ class _LoginPageState extends State<LoginPage> {
                               label: 'Masuk',
                               isExpand: true,
                               onTap: () async {
-                                if (_formkey.currentState!.validate()) {
-                                  try {
-                                    await _callLoginApi();
-                                    // ignore: use_build_context_synchronously
-                                    Navigator.pushReplacementNamed(
-                                        context, AppRoute.main);
-                                    // ignore: use_build_context_synchronously
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(const SnackBar(
-                                      content: Text("Berhasil masuk"),
-                                      behavior: SnackBarBehavior.floating,
-                                    ));
-                                  } catch (e) {
-                                    // ignore: avoid_print
-                                    print('Login Error: $e');
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text("Gagal masuk"),
-                                        behavior: SnackBarBehavior.floating,
-                                      ),
-                                    );
-                                  }
-                                } else {
+                                _validateForm();
+                                if (_isFormValid) {
+                                  await callLogin();
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(const SnackBar(
-                                    content: Text(
-                                        "Pastikan Format Login Sudah Tepat"),
+                                    content: Text("Berhasil masuk"),
                                     behavior: SnackBarBehavior.floating,
                                   ));
+                                  Navigator.pushReplacementNamed(
+                                      context, AppRoute.main);
+                                } else {
                                   return null;
                                 }
                               },
@@ -303,7 +279,7 @@ class _LoginPageState extends State<LoginPage> {
                             InkWell(
                               onTap: () {
                                 Navigator.pushReplacementNamed(
-                                    context, AppRoute.signup);
+                                    context, AppRoute.register);
                               },
                               child: const Text(
                                 'Belum punya akun? Registrasi!',

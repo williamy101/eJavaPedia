@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:ejavapedia/auth_service.dart';
 import 'package:ejavapedia/configs/app_route.dart';
 import 'package:ejavapedia/widgets/button_custom.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +36,45 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<String?> getToken(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final expirationTime = prefs.getInt('tokenExpiration');
+
+    if (token != null && expirationTime != null) {
+      final currentTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      if (currentTime < expirationTime) {
+        return token;
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Sesi Login Kadaluwarsa'),
+              content: const Text('Mohon lakukan login ulang'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+      await performLogout();
+      return null;
+    }
+    return null;
+  }
+
+  Future<void> performLogout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+  }
+
   Future<void> _showConfirmationDialog(BuildContext context) async {
     await showDialog<bool>(
       context: context,
@@ -55,7 +93,7 @@ class _ProfilePageState extends State<ProfilePage> {
             TextButton(
               child: const Text('Ya'),
               onPressed: () async {
-                await AuthService.performLogout();
+                await performLogout();
                 // ignore: use_build_context_synchronously
                 Navigator.of(context).pop();
                 // ignore: use_build_context_synchronously

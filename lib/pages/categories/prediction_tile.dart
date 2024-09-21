@@ -40,7 +40,7 @@ class PredictionTile extends StatelessWidget {
             final result = snapshot.data!.result;
             if (result.photos.isNotEmpty) {
               final photoReference = result.photos.first.photoReference;
-              const apiKey = 'AIzaSyD9c4q9V2BvqbvfgR9z6mbulvvfwWxoVeM';
+              const apiKey = 'AIzaSyBQi_rbKGZhKjntMa9SmT5k7XumD3x9Biw';
               final imageUrl =
                   'https://maps.googleapis.com/maps/api/place/photo?maxwidth=100&photoreference=$photoReference&key=$apiKey';
               return SizedBox(

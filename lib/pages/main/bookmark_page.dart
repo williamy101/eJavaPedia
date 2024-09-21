@@ -17,15 +17,14 @@ class _BookmarkPageState extends State<BookmarkPage> {
   String selectedFilter = '';
   late List<Map<String, dynamic>> updatedBookmarkData;
 
-  Future<void> getBookmarkData() async {
+  Future<List<Map<String, dynamic>>> getBookmarkData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? jsonData = prefs.getString('bookmarkData');
     if (jsonData != null) {
-      setState(() {
-        bookmarkData = List<Map<String, dynamic>>.from(
-          jsonDecode(jsonData) as List<dynamic>,
-        );
-      });
+      return List<Map<String, dynamic>>.from(
+          jsonDecode(jsonData) as List<dynamic>);
+    } else {
+      return [];
     }
   }
 
@@ -68,13 +67,13 @@ class _BookmarkPageState extends State<BookmarkPage> {
       String? accountId = prefs.getString('accountId');
 
       final url =
-          Uri.parse('http://192.168.100.8:8888/eJavaPedia/DeleteBookmark');
+          Uri.parse('http://192.168.100.203:8888/eJavaPedia/DeleteBookmark');
 
       final payload = {
         'account_id': accountId,
         'data': bookmarkData.map((data) {
           return {
-            'kategori': data['kategori'],
+            'category_name': data['kategori'],
             'nama': data['nama'],
             'latitude': data['latitude'],
             'longitude': data['longitude'],
@@ -117,7 +116,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
       String? accountId = prefs.getString('accountId');
 
       final url =
-          Uri.parse('http://192.168.100.8:8888/eJavaPedia/DeleteBookmark');
+          Uri.parse('http://192.168.100.203:8888/eJavaPedia/DeleteBookmark');
 
       final payload = {
         'account_id': accountId,
@@ -198,7 +197,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
                 deleteAllBookmarks();
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text("Data favorit berhasil dihapus"),
+                  content: Text("Semua data favorit berhasil dihapus"),
                   behavior: SnackBarBehavior.floating,
                 ));
               },
@@ -212,7 +211,11 @@ class _BookmarkPageState extends State<BookmarkPage> {
   @override
   void initState() {
     super.initState();
-    getBookmarkData();
+    getBookmarkData().then((data) {
+      setState(() {
+        bookmarkData = data;
+      });
+    });
   }
 
   @override
@@ -275,7 +278,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
                 child: bookmarkData.isEmpty
                     ? const Center(
                         child: Text(
-                          'Belum ada yang anda masukkan favorit',
+                          'Belum ada tempat yang Anda favoritkan.',
                           style: TextStyle(fontSize: 18),
                         ),
                       )
@@ -284,7 +287,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
                         itemBuilder: (context, index) {
                           final data = bookmarkData[index];
                           final imageUrl =
-                              '${data['pic']}&key=AIzaSyD9c4q9V2BvqbvfgR9z6mbulvvfwWxoVeM';
+                              '${data['pic']}&key=AIzaSyBQi_rbKGZhKjntMa9SmT5k7XumD3x9Biw';
 
                           if (selectedFilter.isNotEmpty &&
                               data['kategori'] != selectedFilter) {
@@ -324,6 +327,13 @@ class _BookmarkPageState extends State<BookmarkPage> {
                                           child: const Text("Ya"),
                                           onPressed: () {
                                             Navigator.of(context).pop(true);
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(const SnackBar(
+                                              content: Text(
+                                                  "Data favorit berhasil dihapus"),
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                            ));
                                           },
                                         ),
                                       ],
@@ -338,22 +348,26 @@ class _BookmarkPageState extends State<BookmarkPage> {
                               },
                               child: GestureDetector(
                                 onTap: () async {
-                                  updatedBookmarkData = await Navigator.push(
+                                  final updatedData = await Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => MapsPage(
                                         nama: data['nama'],
-                                        type: data['kategori'],
+                                        category_name: data['kategori'],
                                         latitude: data['latitude'],
                                         longitude: data['longitude'],
                                       ),
                                     ),
                                   );
 
-                                  setState(() {
-                                    bookmarkData = updatedBookmarkData;
-                                  });
-                                  updateBookmarkData();
+                                  if (updatedData != null) {
+                                    setState(() {
+                                      bookmarkData =
+                                          List<Map<String, dynamic>>.from(
+                                              updatedData);
+                                    });
+                                    await updateBookmarkData();
+                                  }
                                 },
                                 child: Card(
                                   shape: RoundedRectangleBorder(

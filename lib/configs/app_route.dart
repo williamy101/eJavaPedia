@@ -4,9 +4,9 @@ class AppRoute {
   static const home = '/home';
   static const login = '/login';
   static const bookmark = '/bookmark';
-  static const signup = '/signup';
+  static const register = '/register';
   static const profile = '/profile';
-  static const food = '/food';
+  static const category = '/category';
   static const dance = '/dance';
   static const travel = '/travel';
 }

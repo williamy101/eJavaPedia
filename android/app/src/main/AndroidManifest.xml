@@ -2,7 +2,6 @@
     package="com.example.ejavapedia">
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
    <application
@@ -35,10 +34,12 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-
+        <meta-data
+                android:name="com.google.android.gms.version"
+                android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyD9c4q9V2BvqbvfgR9z6mbulvvfwWxoVeM" />
+            android:value="AIzaSyBQi_rbKGZhKjntMa9SmT5k7XumD3x9Biw" />
 
         <meta-data
         android:name="io.flutter.embedded_fonts"

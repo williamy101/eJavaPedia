@@ -7,17 +7,19 @@ import 'package:ejavapedia/pages/categories/details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-class DancePage extends StatefulWidget {
-  const DancePage({Key? key}) : super(key: key);
+class CulturePage extends StatefulWidget {
+  final String category_name;
+  const CulturePage({Key? key, required this.category_name}) : super(key: key);
 
   @override
-  State<DancePage> createState() => _DancePageState();
+  State<CulturePage> createState() => CulturePageState();
 }
 
 class SearchService {
-  static Future<List<Map<String, dynamic>>> searchItems(String query) async {
+  static Future<List<Map<String, dynamic>>> searchItems(
+      String category, String query) async {
     final url = Uri.parse(
-        'http://192.168.100.8:8888/eJavaPedia/Get?category=Tarian&name=$query');
+        'http://192.168.100.70:8888/eJavaPedia/Get?category=$category&name=$query');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -26,9 +28,9 @@ class SearchService {
       data.sort((a, b) => a['Nama'].compareTo(b['Nama']));
       return data
           .map((item) => {
-                'id': item['ID'],
-                'name': item['Nama'],
-                'imageUrl': item['Pic'],
+                'item_id': item['ID'],
+                'item_name': item['Nama'],
+                'item_imageUrl': item['Pic'],
               })
           .toList();
     } else {
@@ -37,7 +39,7 @@ class SearchService {
   }
 }
 
-class _DancePageState extends State<DancePage> {
+class CulturePageState extends State<CulturePage> {
   List<Map<String, dynamic>> _searchResults = [];
 
   @override
@@ -49,7 +51,7 @@ class _DancePageState extends State<DancePage> {
   void _fetchSearchResults(String query) async {
     try {
       List<Map<String, dynamic>> results =
-          await SearchService.searchItems(query);
+          await SearchService.searchItems(widget.category_name, query);
       setState(() {
         _searchResults = results;
       });
@@ -92,8 +94,8 @@ class _DancePageState extends State<DancePage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => DetailsPage(
-                            type: 'Tarian',
-                            id: item['id'],
+                            category_name: widget.category_name,
+                            id: item['item_id'],
                           ),
                         ),
                       );
@@ -101,9 +103,9 @@ class _DancePageState extends State<DancePage> {
                     child: Column(
                       children: [
                         Hero(
-                          tag: 'item_${item['id']}',
+                          tag: 'item_${item['item_id']}',
                           child: Image.network(
-                            item['imageUrl'],
+                            item['item_imageUrl'],
                             height: 190,
                             fit: BoxFit.cover,
                           ),
@@ -111,10 +113,10 @@ class _DancePageState extends State<DancePage> {
                         Container(
                           margin: const EdgeInsets.only(top: 8),
                           child: Text(
-                            item['name'],
+                            item['item_name'],
                             style: const TextStyle(
                               fontSize: 20,
-                              fontWeight: FontWeight.w200,
+                              fontWeight: FontWeight.w300,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -163,7 +165,7 @@ class _DancePageState extends State<DancePage> {
                   ),
                   const SizedBox(width: 16),
                   Text(
-                    'Tarian',
+                    widget.category_name,
                     style: Theme.of(context).textTheme.headline3!.copyWith(
                           color: AppColors.secondary,
                           fontWeight: FontWeight.w900,

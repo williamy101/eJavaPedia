@@ -1,5 +1,6 @@
 import 'package:ejavapedia/configs/app_assets.dart';
 import 'package:ejavapedia/configs/app_colors.dart';
+import 'package:ejavapedia/pages/categories/culture_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -17,20 +18,6 @@ class _HomePageState extends State<HomePage> {
   String searchText = '';
   List<dynamic> searchResults = [];
 
-  Future<List<dynamic>> fetchDataFromEndpoint(String endpoint,
-      {String query = ''}) async {
-    final url = Uri.parse(
-        '$endpoint?q=$query'); // Replace 'ID' with the actual parameter name for ID
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final jsonData = json.decode(response.body);
-      return jsonData['data'];
-    } else {
-      throw Exception('Failed to fetch data from $endpoint');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -39,7 +26,7 @@ class _HomePageState extends State<HomePage> {
         child: Stack(
           children: [
             ListView(
-              padding: const EdgeInsets.only(top: 160),
+              padding: const EdgeInsets.only(top: 150),
               children: [
                 Padding(
                   padding:
@@ -48,7 +35,7 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Jelajahi budaya Jawa Timur...',
+                        'Jelajahi...',
                         style: Theme.of(context).textTheme.headline6!.copyWith(
                               fontWeight: FontWeight.w600,
                               color: Colors.black,
@@ -64,7 +51,12 @@ class _HomePageState extends State<HomePage> {
                               child: InkWell(
                                 splashColor: AppColors.primary,
                                 onTap: () {
-                                  Navigator.pushNamed(context, AppRoute.food);
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const CulturePage(
+                                                  category_name: 'Makanan')));
                                 },
                                 child: SizedBox(
                                   width: screenWidth,
@@ -103,8 +95,13 @@ class _HomePageState extends State<HomePage> {
                                         child: InkWell(
                                           splashColor: AppColors.primary,
                                           onTap: () {
-                                            Navigator.pushNamed(
-                                                context, AppRoute.dance);
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const CulturePage(
+                                                            category_name:
+                                                                'Tarian')));
                                           },
                                           child: SizedBox(
                                             child: Image.asset(
@@ -141,8 +138,13 @@ class _HomePageState extends State<HomePage> {
                                         child: InkWell(
                                           splashColor: AppColors.primary,
                                           onTap: () {
-                                            Navigator.pushNamed(
-                                                context, AppRoute.travel);
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const CulturePage(
+                                                            category_name:
+                                                                'Wisata')));
                                           },
                                           child: SizedBox(
                                             child: Image.asset(
@@ -204,7 +206,7 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Selamat Datang',
+                    'Selamat Datang,',
                     style: Theme.of(context).textTheme.headline3!.copyWith(
                           color: AppColors.secondary,
                           fontWeight: FontWeight.w900,
@@ -214,87 +216,21 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               const SizedBox(height: 16),
-              searchBar(),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'di eJavaPedia',
+                  style: Theme.of(context).textTheme.headline3!.copyWith(
+                        color: AppColors.bgScaffold,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 28,
+                      ),
+                ),
+              )
             ],
           ),
         ),
       ),
     );
-  }
-
-  Widget searchBar() {
-    return Stack(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(50),
-            color: Colors.white,
-          ),
-          height: 45,
-          child: TextField(
-            onChanged: (value) {
-              setState(() {
-                searchText = value;
-              });
-            },
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(50),
-                borderSide: BorderSide.none,
-              ),
-              hintText: 'Cari...',
-              hintStyle: const TextStyle(
-                fontStyle: FontStyle.italic,
-                color: Colors.grey,
-                fontSize: 20,
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 8,
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          top: 45,
-          left: 0,
-          right: 0,
-          child: Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: searchResults.length,
-              itemBuilder: (context, index) {
-                final result = searchResults[index];
-                return ListTile(
-                  title: Text(result['title']),
-                  // Display other relevant data from the result
-                  onTap: () {
-                    // Handle tile tap event here, e.g., navigate to details page
-                  },
-                );
-              },
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void performSearch(String query) async {
-    const endpoint1 =
-        'https://192.168.100.8:8888/eJavaPedia/Get?type=Wisata&ID=';
-    const endpoint2 =
-        'https://192.168.100.8:8888/eJavaPedia/Get?type=Makanan&ID=';
-    const endpoint3 =
-        'https://192.168.100.8:8888/eJavaPedia/Get?type=Tarian&ID=';
-
-    final results1 = await fetchDataFromEndpoint('$endpoint1&ID=$query');
-    final results2 = await fetchDataFromEndpoint('$endpoint2&ID=$query');
-    final results3 = await fetchDataFromEndpoint('$endpoint3&ID=$query');
-
-    setState(() {
-      searchResults = [...results1, ...results2, ...results3];
-    });
   }
 }

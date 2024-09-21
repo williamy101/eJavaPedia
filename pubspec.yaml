@@ -43,17 +43,16 @@ dependencies:
   ffi: ^1.2.1
   video_player: ^2.5.1
   google_maps_flutter: ^2.2.3
-  location: ^4.4.0
   geocoding: ^2.0.5
   flutter_google_places: ^0.3.0
   google_maps_webservice: ^0.0.20-nullsafety.5
   flutter_config: ^2.0.0
   xml: ^6.0.1
   flutter_rating_bar: ^4.0.1
-  geolocator: ^9.0.2
   youtube_player_iframe: ^2.2.2
   youtube_player_flutter: ^8.0.0
   flutter_typeahead: ^4.3.1
+  location: ^4.4.0
   
 
   

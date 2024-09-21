@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:location/location.dart' as location;
 import 'package:ejavapedia/pages/categories/prediction_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -8,13 +9,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class MapsPage extends StatefulWidget {
   final String nama;
-  final String type;
+  final String category_name;
   final double? latitude;
   final double? longitude;
 
   // ignore: use_key_in_widget_constructors
   const MapsPage(
-      {required this.nama, required this.type, this.latitude, this.longitude});
+      {required this.nama,
+      required this.category_name,
+      this.latitude,
+      this.longitude});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -23,7 +27,7 @@ class MapsPage extends StatefulWidget {
 
 class _MapsPageState extends State<MapsPage> {
   final places = GoogleMapsPlaces(
-    apiKey: 'AIzaSyD9c4q9V2BvqbvfgR9z6mbulvvfwWxoVeM',
+    apiKey: 'AIzaSyBQi_rbKGZhKjntMa9SmT5k7XumD3x9Biw',
   );
 
   List<Map<String, dynamic>> updatedBookmarkData = [];
@@ -35,7 +39,7 @@ class _MapsPageState extends State<MapsPage> {
     String? accountId = prefs.getString('accountId');
 
     final bookmark = {
-      'kategori': widget.type,
+      'kategori': widget.category_name,
       'nama': result.name,
       'latitude': double.parse(result.geometry!.location.lat.toString()),
       'longitude': double.parse(result.geometry!.location.lng.toString()),
@@ -46,9 +50,8 @@ class _MapsPageState extends State<MapsPage> {
           : '',
     };
 
-    List<Map<String, dynamic>> existingBookmarks =
-        jsonDecode(prefs.getString('bookmarkData') ?? '[]')
-            .cast<Map<String, dynamic>>();
+    existingBookmarks = jsonDecode(prefs.getString('bookmarkData') ?? '[]')
+        .cast<Map<String, dynamic>>();
 
     bool isDuplicate = existingBookmarks.any((bookmark) =>
         bookmark['nama'] == result.name &&
@@ -63,7 +66,7 @@ class _MapsPageState extends State<MapsPage> {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Tempat ini sudah masuk favorit"),
+          content: Text("Tempat ini sudah difavoritkan"),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -73,8 +76,11 @@ class _MapsPageState extends State<MapsPage> {
     existingBookmarks.add(bookmark);
 
     await prefs.setString('bookmarkData', jsonEncode(existingBookmarks));
+    setState(() {
+      updatedBookmarkData = existingBookmarks;
+    });
 
-    final url = Uri.parse('http://192.168.100.8:8888/eJavaPedia/AddBookmark');
+    final url = Uri.parse('http://192.168.100.203:8888/eJavaPedia/AddBookmark');
 
     final payload = {
       'account_id': accountId,
@@ -99,18 +105,19 @@ class _MapsPageState extends State<MapsPage> {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Berhasil masuk favorit"),
+          content: Text("Berhasil difavoritkan"),
           behavior: SnackBarBehavior.floating,
         ),
       );
 
-      // Update the local bookmark data list
       setState(() {
         updatedBookmarkData = existingBookmarks;
       });
     } else {
       // ignore: avoid_print
       print('Gagal menambahkan bookmark');
+      throw Exception(
+          'Gagal difavoritkan. Status code: ${response.statusCode}');
     }
   }
 
@@ -126,8 +133,8 @@ class _MapsPageState extends State<MapsPage> {
     super.dispose();
   }
 
-  void searchPlaces(String input) async {
-    if (input.isEmpty) {
+  void searchPlaces(String query) async {
+    if (query.isEmpty) {
       setState(() {
         _predictions = [];
       });
@@ -139,11 +146,11 @@ class _MapsPageState extends State<MapsPage> {
     ];
 
     if (widget.nama == 'Brem') {
-      input += ' Jawa Timur';
+      query += ' Jawa Timur';
     }
 
     PlacesAutocompleteResponse response = await places.autocomplete(
-      input,
+      query,
       components: components,
     );
 
@@ -209,7 +216,7 @@ class _MapsPageState extends State<MapsPage> {
                                     minScale: 0.1,
                                     maxScale: 3.0,
                                     child: Image.network(
-                                      'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${result.photos[0].photoReference}&key=AIzaSyD9c4q9V2BvqbvfgR9z6mbulvvfwWxoVeM',
+                                      'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${result.photos[0].photoReference}&key=AIzaSyBQi_rbKGZhKjntMa9SmT5k7XumD3x9Biw',
                                       fit: BoxFit.cover,
                                       width: 300,
                                     ),
@@ -336,22 +343,73 @@ class _MapsPageState extends State<MapsPage> {
     );
   }
 
+  void readBookmarkData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String bookmarkData = prefs.getString('bookmarkData') ?? '[]';
+    setState(() {
+      updatedBookmarkData =
+          jsonDecode(bookmarkData).cast<Map<String, dynamic>>();
+    });
+  }
+
+  LatLng? _currentLocation;
+
+  Future<void> _getCurrentLocation() async {
+    final locationService = location.Location();
+
+    bool serviceEnabled;
+    location.PermissionStatus permissionGranted;
+    serviceEnabled = await locationService.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await locationService.requestService();
+      if (!serviceEnabled) {
+        print('Location services are disabled.');
+        return;
+      }
+    }
+
+    permissionGranted = await locationService.requestPermission();
+    if (permissionGranted != location.PermissionStatus.granted) {
+      print('Location permission is denied.');
+      return;
+    }
+
+    try {
+      final locationData = await locationService.getLocation();
+      setState(() {
+        _currentLocation = LatLng(
+          locationData.latitude ?? 0,
+          locationData.longitude ?? 0,
+        );
+      });
+    } catch (e) {
+      print('Error retrieving current location: $e');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    if (widget.latitude != null && widget.longitude != null) {
-      searchPlaces(widget.nama);
-      _markers = {
-        Marker(
-          markerId: const MarkerId('selectedLocation'),
-          position: LatLng(widget.latitude!, widget.longitude!),
-        ),
-      };
-    } else {
-      _searchController.text = widget.nama;
-      searchPlaces(widget.nama);
-    }
     _searchController.text = widget.nama;
+    readBookmarkData();
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      _getCurrentLocation().then((_) {
+        if (_currentLocation != null) {
+          _mapController?.animateCamera(
+            CameraUpdate.newLatLngZoom(_currentLocation!, 19.5),
+          );
+          setState(() {
+            _markers = {
+              Marker(
+                markerId: const MarkerId('selectedLocation'),
+                position: _currentLocation!,
+              ),
+            };
+          });
+        }
+        searchPlaces(widget.nama);
+      });
+    });
   }
 
   @override
@@ -399,7 +457,7 @@ class _MapsPageState extends State<MapsPage> {
         children: [
           GoogleMap(
             initialCameraPosition: CameraPosition(
-              target: LatLng(widget.latitude ?? 0, widget.longitude ?? 0),
+              target: _currentLocation ?? LatLng(0, 0),
               zoom: 19.5,
             ),
             markers: _markers,

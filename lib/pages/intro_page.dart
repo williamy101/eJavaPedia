@@ -73,7 +73,7 @@ class _IntroPageState extends State<IntroPage> {
                 ),
                 const SizedBox(height: 40),
                 ButtonCustom(
-                  label: 'Log in',
+                  label: 'Masuk',
                   onTap: () {
                     Navigator.pushNamed(context, AppRoute.login);
                   },
@@ -81,9 +81,9 @@ class _IntroPageState extends State<IntroPage> {
                 ),
                 const SizedBox(height: 15),
                 ButtonCustom(
-                  label: 'Sign Up',
+                  label: 'Registrasi',
                   onTap: () {
-                    Navigator.pushNamed(context, AppRoute.signup);
+                    Navigator.pushNamed(context, AppRoute.register);
                   },
                   isExpand: true,
                 ),
